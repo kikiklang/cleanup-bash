@@ -1,11 +1,16 @@
 #!/bin/bash
 
 # ----------------------------------
+# User info
+# ----------------------------------
+USER='your_username'
+DISK='your_diskanme' 
+
+# ----------------------------------
 # Variables
 # ----------------------------------
 NOCOLOR='\033[0m'
 GREEN='\033[1;33m'
-USER='vinz'
 
 # ----------------------------------
 # Fonctions
@@ -20,7 +25,7 @@ current_task_title () {
 # Disk space before
 # ----------------------------------
 current_task_title "Taille du disque avant nettoyage"
-df /dev/nvme0n1p5 -h --output=source,size,used,pcent
+df /dev/${DISK} -h --output=source,size,used,pcent
 
 # ----------------------------------
 # Clear systemd journal logs
@@ -43,14 +48,14 @@ snap list --all | awk '/disabled/{print $1, $3}' |
 # Clean the thumbnail cache
 # ----------------------------------
 current_task_title "Supprime le cache des vignettes system"
-rm -rf ~/.local/share/Trash/*
+rm -rf ~/.cache/thumbnails/*
 echo -e "${GREEN}ok${NOCOLOR}"
 
 # ----------------------------------
 # Empty trash bin
 # ----------------------------------
 current_task_title "vidage de la corbeille"
-rm -rf ~/.cache/thumbnails/*
+rm -rf ~/.local/share/Trash/*
 echo -e "${GREEN}ok${NOCOLOR}"
 
 # ----------------------------------
@@ -97,5 +102,5 @@ apt-get -y autoclean
 # Disk space after
 # ----------------------------------
 current_task_title "Taille du disque apres nettoyage"
-df /dev/nvme0n1p5 -h --output=source,size,used,pcent
+df /dev/${DISK} -h --output=source,size,used,pcent
 
