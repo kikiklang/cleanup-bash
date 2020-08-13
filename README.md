@@ -6,10 +6,9 @@ Un program bash pour MAJ Ubuntu et nettoyer le système. Je l'utilise avec ubunt
 ## Utilisation
 
 1. Cloner le projet
-2. Ouvrir le fichier
-3. Renseigner votre nom d'utilisateur unix ( command  >> 'who') au sein du fichier cleanup,sh
-4. Renseigner le nom de votre disque dur ( command >> lsblk ) au sein du fichier cleanup,sh
-5. dans le terminal, a la racine du dossier, on lance le script avec la commande >> sudo ./cleanup.sh
+2. Renseigner votre nom d'utilisateur unix ( command  >> 'who') au sein du fichier cleanup,sh
+3. Renseigner le nom de votre disque dur ( command >> lsblk ) au sein du fichier cleanup,sh
+4. Dans le terminal, a la racine du dossier, on lance le script avec la commande >> sudo ./cleanup.sh
 
 `![Moi c'est nvme0n1p5 ¯\_(ツ)_/¯](screenshot.png)`
 
