@@ -3,8 +3,8 @@
 # ----------------------------------
 # User info
 # ----------------------------------
-USER='your_username'
-DISK='your_diskanme' 
+USER='vinz'
+DISK='nvme0n1p5' 
 
 # ----------------------------------
 # Variables
@@ -28,10 +28,11 @@ current_task_title "Taille du disque avant nettoyage"
 df /dev/${DISK} -h --output=source,size,used,pcent
 
 # ----------------------------------
-# Clear systemd journal logs
+# Clear various logs
 # ----------------------------------
-current_task_title "Nettoyage des logs du system"
+current_task_title "Nettoyage des logs"
 sudo journalctl --vacuum-time=3d
+sudo rm -f /var/log/*g
 
 # ----------------------------------
 # List of installed snap and remove older versions 
@@ -50,6 +51,33 @@ snap list --all | awk '/disabled/{print $1, $3}' |
 current_task_title "Supprime le cache des vignettes system"
 rm -rf ~/.cache/thumbnails/*
 echo -e "${GREEN}ok${NOCOLOR}"
+
+# ----------------------------------
+# Remove old kernels 
+# https://github.com/kivisade/kernel-purge/blob/master/kernel-purge.sh
+# ----------------------------------
+current_task_title "Supprime les kernels obsolètes"
+current_kernel="$(uname -r | sed 's/\(.*\)-\([^0-9]\+\)/\1/')"
+current_ver=${current_kernel/%-generic}
+
+echo "La version courante est : ${current_kernel}"
+# uname -a
+
+function xpkg_list() {
+    dpkg -l 'linux-*' | sed '/^ii/!d;/linux-libc-dev/d;/'${current_ver}'/d;s/^[^ ]* [^ ]* \([^ ]*\).*/\1/;/[0-9]/!d'
+}
+
+echo "Les noyaux suivants (désormais inutilisés) vont être supprimés"
+xpkg_list
+
+read -p '-- On continue?  (y / n) --' -n 1 -r
+printf "\n"
+if [[ $REPLY =~ ^[Yy]$ ]]
+then
+    xpkg_list | xargs sudo apt-get -y purge
+else
+    echo 'Operation a été annulée - aucun changement effectué'
+fi
 
 # ----------------------------------
 # Empty trash bin
