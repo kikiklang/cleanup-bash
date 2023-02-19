@@ -4,7 +4,7 @@
 # User info
 # ----------------------------------
 USER='vinz'
-DISK='nvme0n1p5' 
+DISK='nvme0n1p2' 
 
 # ----------------------------------
 # Variables
@@ -13,7 +13,7 @@ NOCOLOR='\033[0m'
 GREEN='\033[1;33m'
 
 # ----------------------------------
-# Fonctions
+# Common
 # ----------------------------------
 current_task_title () {
   echo -e "${GREEN}-------------------------------------------------${NOCOLOR}"
@@ -84,6 +84,13 @@ fi
 # ----------------------------------
 current_task_title "vidage de la corbeille"
 rm -rf ~/.local/share/Trash/*
+echo -e "${GREEN}ok${NOCOLOR}"
+
+# ----------------------------------
+# Empty residual config 
+# ----------------------------------
+current_task_title "suppression des résidus de configuration logiciels"
+sudo apt purge ~c
 echo -e "${GREEN}ok${NOCOLOR}"
 
 # ----------------------------------
