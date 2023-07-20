@@ -22,6 +22,11 @@ clean_logs() {
   sudo rm -f /var/log/*g
 }
 
+clean_tmp() {
+  current_task_title "Nettoyage des fichiers temporaires"
+  sudo rm -rf /tmp/*
+}
+
 # Function to list installed snaps and remove older versions
 remove_old_snaps() {
   current_task_title "Liste les snaps et supprime les vieilles versions"
@@ -43,27 +48,32 @@ clean_thumbnail_cache() {
 # Function to remove old kernels
 remove_old_kernels() {
   current_task_title "Supprime les kernels obsolètes"
-	current_kernel="$(uname -r | sed 's/\(.*\)-\([^0-9]\+\)/\1/')"
-	current_ver=${current_kernel/%-generic}
+  current_kernel="$(uname -r | sed 's/\(.*\)-\([^0-9]\+\)/\1/')"
+  current_ver=${current_kernel/%-generic}
 
-	echo "La version courante est : ${current_kernel}"
-	# uname -a
+  echo "La version courante est : ${current_kernel}"
 
-	function xpkg_list() {
-		  dpkg -l 'linux-*' | sed '/^ii/!d;/linux-libc-dev/d;/'${current_ver}'/d;s/^[^ ]* [^ ]* \([^ ]*\).*/\1/;/[0-9]/!d'
-	}
+  function xpkg_list() {
+    dpkg -l 'linux-*' | sed '/^ii/!d;/linux-libc-dev/d;/'${current_ver}'/d;s/^[^ ]* [^ ]* \([^ ]*\).*/\1/;/[0-9]/!d'
+  }
 
-	echo "Les noyaux suivants (désormais inutilisés) vont être supprimés"
-	xpkg_list
+  old_kernels=$(xpkg_list)
 
-	read -p '-- On continue?  (y / n) --' -n 1 -r
-	printf "\n"
-	if [[ $REPLY =~ ^[Yy]$ ]]
-	then
-		  xpkg_list | xargs sudo apt-get -y purge
-	else
-		  echo 'Operation a été annulée - aucun changement effectué'
-	fi
+  if [ -z "$old_kernels" ]; then
+    echo "Aucun noyau obsolète trouvé. Rien à supprimer."
+    return
+  fi
+
+  echo "Les noyaux suivants (désormais inutilisés) vont être supprimés"
+  echo "$old_kernels"
+
+  read -p '-- On continue?  (y / n) --' -n 1 -r
+  printf "\n"
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "$old_kernels" | xargs sudo apt-get -y purge
+  else
+    echo 'Opération a été annulée - aucun changement effectué'
+  fi
 }
 
 # Function to empty trash bin
@@ -129,6 +139,7 @@ check_disk_space() {
 # Main function to execute all cleaning tasks
 main() {
   clean_logs
+  clean_tmp
   remove_old_snaps
   clean_thumbnail_cache
   remove_old_kernels
