@@ -15,6 +15,17 @@ current_task_title () {
   echo -e "${GREEN}-------------------------------------------------${NOCOLOR}"
 }
 
+
+# Function to confirm user's action
+confirm_action() {
+  read -p "Etes-vous sûr de vouloir lancer le process de nettoyage ? (y/n) " yn
+  case $yn in
+    [Yy]* ) return 0;;
+    [Nn]* ) return 1;;
+    * ) echo "Veuillez répondre par 'y' ou 'n'."; return 1;;
+  esac
+}
+
 # Function to clean various logs
 clean_logs() {
   current_task_title "Nettoyage des logs"
@@ -138,18 +149,22 @@ check_disk_space() {
 
 # Main function to execute all cleaning tasks
 main() {
-  clean_logs
-  clean_tmp
-  remove_old_snaps
-  clean_thumbnail_cache
-  remove_old_kernels
-  empty_trash_bin
-  remove_residual_config
-  check_home_disk_usage
-  system_update
-  system_upgrade
-  clean_apt_packages
-  check_disk_space
+  if confirm_action; then
+    clean_logs
+    clean_tmp
+    remove_old_snaps
+    clean_thumbnail_cache
+    remove_old_kernels
+    empty_trash_bin
+    remove_residual_config
+    check_home_disk_usage
+    system_update
+    system_upgrade
+    clean_apt_packages
+    check_disk_space
+  else
+    echo "Le processus de nettoyage a été annulé."
+  fi
 }
 
 # Run the main function
