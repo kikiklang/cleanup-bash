@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # User info
-USER='vinz'
+# Determine target user: prefer the original invoking user when using sudo
+# Fallback to the environment `USER` or the current username
+TARGET_USER="${SUDO_USER:-$USER:-$(id -un)}"
 DISK='nvme0n1p2'
 
 # Colors for formatting output
@@ -56,6 +58,13 @@ clean_thumbnail_cache() {
   echo -e "${GREEN}ok${NOCOLOR}"
 }
 
+# Function to clean npm cache
+clean_npm_cache() {
+  current_task_title "Nettoyage du cache npm"
+  npm cache clean --force
+  echo -e "${GREEN}npm cache cleaned successfully${NOCOLOR}"
+}
+
 # Function to remove old kernels
 remove_old_kernels() {
   current_task_title "Supprime les kernels obsolètes"
@@ -89,7 +98,7 @@ remove_old_kernels() {
 
 # Function to empty trash bin
 empty_trash_bin() {
-  current_task_title "Vidage de la corbeille"
+  current_task_title "Vidange de la corbeille"
   rm -rf ~/.local/share/Trash/*
   echo -e "${GREEN}ok${NOCOLOR}"
 }
@@ -104,7 +113,7 @@ remove_residual_config() {
 # Function to check disk usage on home user folders
 check_home_disk_usage() {
   current_task_title "Tailles des dossiers de home"
-  sudo du -shc /home/${USER}/* | sort -rh
+  sudo du -shc /home/${TARGET_USER}/* | sort -rh
 }
 
 # Function to perform system update
@@ -126,7 +135,7 @@ system_upgrade() {
   while true; do
     read -p "Voulez-vous faire une mise à niveau des paquets? (y/n) " yn
     case $yn in
-      [Yy]* ) sudo apt upgrade -y; break;;
+      [Yy]* ) sudo apt upgrade -y --allow-downgrades; break;;
       [Nn]* ) break;;
       * ) echo "Veuillez répondre par 'y' ou 'n'.";;
     esac
@@ -152,6 +161,7 @@ main() {
   if confirm_action; then
     clean_logs
     clean_tmp
+    clean_npm_cache
     remove_old_snaps
     clean_thumbnail_cache
     remove_old_kernels
